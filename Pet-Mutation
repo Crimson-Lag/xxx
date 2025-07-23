@@ -1,2 +1,2 @@
 loadstring(game:HttpGet("https://api.rubis.app/v2/scrap/dbvEsER19zDQTHUC/raw", true))()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Crimson-Lag/xx/refs/heads/main/PetMutationV2"))() 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Crimson-Lag/xx/refs/heads/main/PetMutationV2"))()
