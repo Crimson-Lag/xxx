@@ -1,4 +1,4 @@
--- LocalScript (StarterPlayerScripts or executor)
+-- LocalScript (StarterPlayerScripts)
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
@@ -7,7 +7,7 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- 🧬 Editable Mutation Chances (as a dictionary)
+-- 🧬 Editable Mutation Chances
 local mutationChances = {
     Shiny = 0.40,
     Inverted = 0.40,
@@ -22,7 +22,6 @@ local mutationChances = {
     Ascended = 0.25,
     Mega = 0.25,
     Shocked = 0.01,
-    
 }
 
 -- 🎯 Weighted Mutation Roller
@@ -40,22 +39,10 @@ local function rollWeightedMutation()
             return mutation
         end
     end
-
-    -- fallback
-    for name in pairs(mutationChances) do return name end
+    return "Unknown"
 end
 
--- 🛠️ Helper to change any mutation chance dynamically
-local function updateMutationChance(mutationName, newChance)
-    if mutationChances[mutationName] then
-        mutationChances[mutationName] = newChance
-        print("Updated " .. mutationName .. " chance to " .. newChance)
-    else
-        warn("Mutation not found: " .. mutationName)
-    end
-end
-
--- 🌟 Mutation & ESP State
+-- 🌟 Variables
 local currentMutation = rollWeightedMutation()
 local mutationPart = nil
 local billboardGui = nil
@@ -63,13 +50,12 @@ local espLabel = nil
 local espEnabled = true
 local hue = 0
 
--- 🔍 Mutation ESP Setup
+-- 🔍 Create ESP
 local function createOrUpdateESP()
     if not mutationPart then return end
 
     if billboardGui then
         billboardGui:Destroy()
-        billboardGui = nil
     end
 
     if not espEnabled then return end
@@ -93,7 +79,7 @@ local function createOrUpdateESP()
     espLabel.Parent = billboardGui
 end
 
--- 🌈 RGB Animation for ESP label
+-- 🌈 RGB Color for ESP
 RunService.RenderStepped:Connect(function()
     if espEnabled and espLabel then
         hue = (hue + 0.005) % 1
@@ -101,7 +87,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 🔎 Find mutation machine part
+-- 🔎 Find mutation part
 for _, obj in ipairs(Workspace:GetDescendants()) do
     if obj:IsA("Model") and string.find(string.lower(obj.Name), "mutation") then
         local mainPart = obj:FindFirstChildWhichIsA("BasePart")
@@ -149,7 +135,7 @@ closeButton.Font = Enum.Font.GothamBold
 closeButton.TextSize = 18
 Instance.new("UICorner", closeButton).CornerRadius = UDim.new(1, 0)
 
--- 🟣 Toggle ESP Button
+-- 🟣 Toggle ESP
 local toggleBtn = Instance.new("TextButton", mainFrame)
 toggleBtn.Size = UDim2.new(1, -40, 0, 45)
 toggleBtn.Position = UDim2.new(0, 20, 0, 70)
@@ -171,14 +157,14 @@ rollBtn.Font = Enum.Font.GothamBold
 rollBtn.TextSize = 18
 Instance.new("UICorner", rollBtn).CornerRadius = UDim.new(1, 0)
 
--- 🧠 Button Logic
+-- 🎮 Button Actions
 toggleBtn.MouseButton1Click:Connect(function()
     espEnabled = not espEnabled
     toggleBtn.Text = "ESP: " .. (espEnabled and "On" or "Off")
     createOrUpdateESP()
 end)
 
-local function animateRerollForFiveSeconds()
+rollBtn.MouseButton1Click:Connect(function()
     rollBtn.Text = "Rerolling..."
     rollBtn.AutoButtonColor = false
     rollBtn.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
@@ -196,16 +182,19 @@ local function animateRerollForFiveSeconds()
     if espLabel then
         espLabel.Text = "Mutation: " .. currentMutation
     end
-
     rollBtn.Text = "Roll Mutation"
     rollBtn.AutoButtonColor = true
     rollBtn.BackgroundColor3 = Color3.fromRGB(204, 102, 218)
-end
 
-rollBtn.MouseButton1Click:Connect(function()
-    animateRerollForFiveSeconds()
+    createOrUpdateESP()
 end)
 
 closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-    if billboardGui 
+    if screenGui then
+        screenGui:Destroy()
+    end
+    if billboardGui then
+        billboardGui:Destroy()
+        billboardGui = nil
+    end
+end)
