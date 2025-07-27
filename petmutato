@@ -14,6 +14,7 @@ local mutationChances = {
     Windy = 0.40,
     Frozen = 0.40,
     Golden = 0.40,
+    Rainbow = 0.40,
     Tiny = 0.1,
     Tranquil = 0.08,
     IronSkin = 0.08,
@@ -21,7 +22,7 @@ local mutationChances = {
     Ascended = 0.25,
     Mega = 0.25,
     Shocked = 0.01,
-    Rainbow = 0.40,
+    
 }
 
 -- 🎯 Weighted Mutation Roller
