@@ -5,7 +5,7 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local TweenService = game:GetService("TweenService")
 
 -- Config
-local COOLDOWN_TIME = 0.15
+local COOLDOWN_TIME = 0.8
 
 -- GUI Cleanup
 local GUI_NAME = "PetLevelerUI"
