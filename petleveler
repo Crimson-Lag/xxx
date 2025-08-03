@@ -1,0 +1,228 @@
+-- Services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local TweenService = game:GetService("TweenService")
+
+-- Config
+local COOLDOWN_TIME = 0.15
+
+-- GUI Cleanup
+local GUI_NAME = "PetLevelerUI"
+if PlayerGui:FindFirstChild(GUI_NAME) then
+    PlayerGui[GUI_NAME]:Destroy()
+end
+
+-- GUI Elements
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = GUI_NAME
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 280, 0, 180)
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -90)
+MainFrame.BackgroundColor3 = Color3.fromRGB(101, 67, 33)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(70, 40, 20)
+
+-- Header
+local Header = Instance.new("TextLabel")
+Header.Size = UDim2.new(1, 0, 0, 36)
+Header.BackgroundColor3 = Color3.fromRGB(76, 175, 80)
+Header.Text = "Pet Leveler"
+Header.Font = Enum.Font.FredokaOne
+Header.TextColor3 = Color3.new(1, 1, 1)
+Header.TextSize = 22
+Header.Parent = MainFrame
+Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", Header).Color = Color3.fromRGB(50, 120, 50)
+
+-- Close Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 3)
+CloseBtn.Text = "X"
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
+CloseBtn.TextColor3 = Color3.new(1, 1, 1)
+CloseBtn.Font = Enum.Font.FredokaOne
+CloseBtn.TextSize = 20
+CloseBtn.Parent = MainFrame
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", CloseBtn).Color = Color3.fromRGB(255, 255, 255)
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Dropdown
+local Dropdown = Instance.new("TextButton")
+Dropdown.Size = UDim2.new(1, -40, 0, 30)
+Dropdown.Position = UDim2.new(0, 20, 0, 45)
+Dropdown.BackgroundColor3 = Color3.fromRGB(120, 85, 60)
+Dropdown.Text = "Select a Pet"
+Dropdown.TextColor3 = Color3.new(1,1,1)
+Dropdown.Font = Enum.Font.GothamBold
+Dropdown.TextSize = 16
+Dropdown.Parent = MainFrame
+Dropdown.ZIndex = 2
+Instance.new("UICorner", Dropdown).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", Dropdown).Color = Color3.fromRGB(90, 60, 40)
+
+local DropdownMenu = Instance.new("ScrollingFrame")
+DropdownMenu.Size = UDim2.new(1, -40, 0, 80)
+DropdownMenu.Position = UDim2.new(0, 20, 0, 78)
+DropdownMenu.BackgroundColor3 = Color3.fromRGB(80, 60, 40)
+DropdownMenu.Visible = false
+DropdownMenu.CanvasSize = UDim2.new(0, 0, 0, 0)
+DropdownMenu.ScrollBarThickness = 6
+DropdownMenu.ScrollBarImageColor3 = Color3.fromRGB(200, 200, 200)
+DropdownMenu.AutomaticCanvasSize = Enum.AutomaticSize.Y
+DropdownMenu.ClipsDescendants = true
+DropdownMenu.ZIndex = 3
+DropdownMenu.Parent = MainFrame
+Instance.new("UICorner", DropdownMenu).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", DropdownMenu).Color = Color3.fromRGB(90, 60, 40)
+
+local UIList = Instance.new("UIListLayout", DropdownMenu)
+UIList.Padding = UDim.new(0, 2)
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+
+local PetList = {"Raccoon", "Kitsune", "Spinosaurus", "Disco Bee", "T-Rex", "Butterfly", "Dragonfly"}
+local SelectedPet = nil
+
+for _, petName in ipairs(PetList) do
+    local Option = Instance.new("TextButton")
+    Option.Size = UDim2.new(1, 0, 0, 26)
+    Option.BackgroundColor3 = Color3.fromRGB(100, 80, 60)
+    Option.Text = petName
+    Option.Font = Enum.Font.Gotham
+    Option.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Option.TextSize = 14
+    Option.ZIndex = 3
+    Option.Parent = DropdownMenu
+    Instance.new("UICorner", Option).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", Option).Color = Color3.fromRGB(130, 100, 80)
+
+    Option.MouseButton1Click:Connect(function()
+        SelectedPet = petName
+        Dropdown.Text = petName
+        DropdownMenu.Visible = false
+    end)
+end
+
+Dropdown.MouseButton1Click:Connect(function()
+    DropdownMenu.Visible = not DropdownMenu.Visible
+end)
+
+-- Parse Tool Name
+local function parseNameData(name)
+    local weight = string.match(name, "%[(%d+%.?%d*)%s*KG%]")
+    local age = string.match(name, "%[Age%s*(%d+)%]")
+    return tonumber(weight), tonumber(age)
+end
+
+-- Info Label
+local InfoLabel = Instance.new("TextLabel")
+InfoLabel.Size = UDim2.new(1, -40, 0, 45)
+InfoLabel.Position = UDim2.new(0, 20, 0, 135)
+InfoLabel.Text = "Pet Equipped:\nName: None\nWeight: -- KG  Age: --"
+InfoLabel.Font = Enum.Font.GothamSemibold
+InfoLabel.TextSize = 13
+InfoLabel.TextColor3 = Color3.new(1, 1, 1)
+InfoLabel.BackgroundTransparency = 1
+InfoLabel.TextWrapped = true
+InfoLabel.TextXAlignment = Enum.TextXAlignment.Left
+InfoLabel.TextYAlignment = Enum.TextYAlignment.Top
+InfoLabel.Parent = MainFrame
+
+-- Level Button
+local LevelBtn = Instance.new("TextButton")
+LevelBtn.Size = UDim2.new(1, -40, 0, 32)
+LevelBtn.Position = UDim2.new(0, 20, 0, 95)
+LevelBtn.BackgroundColor3 = Color3.fromRGB(90, 160, 60)
+LevelBtn.Text = "Level Up Pet"
+LevelBtn.TextColor3 = Color3.new(1, 1, 1)
+LevelBtn.Font = Enum.Font.FredokaOne
+LevelBtn.TextSize = 18
+LevelBtn.Parent = MainFrame
+Instance.new("UICorner", LevelBtn).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", LevelBtn).Color = Color3.fromRGB(70, 120, 40)
+
+-- Cooldown Bar (Under button)
+local CooldownBar = Instance.new("Frame")
+CooldownBar.Size = UDim2.new(0, 0, 0, 5)
+CooldownBar.Position = UDim2.new(0, 20, 0, 130)
+CooldownBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CooldownBar.BorderSizePixel = 0
+CooldownBar.Parent = MainFrame
+Instance.new("UICorner", CooldownBar).CornerRadius = UDim.new(1, 0)
+
+-- Cooldown Logic
+local cooldown = false
+local currentWeight, currentAge = 0, 0
+
+local function updatePetInfo()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local tool = char:FindFirstChildOfClass("Tool")
+    if not tool or not SelectedPet or not tool.Name:lower():match(SelectedPet:lower()) then
+        InfoLabel.Text = "Pet Equipped:\nName: None\nWeight: -- KG  Age: --"
+        return
+    end
+
+    local weight, age = parseNameData(tool.Name)
+    currentWeight, currentAge = weight or 0, age or 0
+
+    InfoLabel.Text = string.format("Pet Equipped:\nName: %s\nWeight: %.2f KG  Age: %d",
+        tool.Name, currentWeight, currentAge)
+end
+
+LevelBtn.MouseButton1Click:Connect(function()
+    if cooldown then return end
+
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local tool = char:FindFirstChildOfClass("Tool")
+    if not tool or not SelectedPet or not tool.Name:lower():match(SelectedPet:lower()) then
+        LevelBtn.Text = "Hold the correct pet!"
+        task.wait(1)
+        LevelBtn.Text = "Level Up Pet"
+        return
+    end
+
+    cooldown = true
+    LevelBtn.Text = "Leveling..."
+    CooldownBar.Size = UDim2.new(0, 0, 0, 5)
+
+    local tween = TweenService:Create(CooldownBar, TweenInfo.new(COOLDOWN_TIME, Enum.EasingStyle.Linear), {
+        Size = UDim2.new(1, -40, 0, 5)
+    })
+    tween:Play()
+
+    task.wait(COOLDOWN_TIME)
+
+    if currentAge >= 100 then
+        LevelBtn.Text = "Max Level!"
+    else
+        currentAge += 1
+        currentWeight += 0.28
+        tool.Name = string.format("%s [%.2f KG] [Age %d]", SelectedPet, currentWeight, currentAge)
+        LevelBtn.Text = "+1 Age!"
+    end
+
+    task.wait(COOLDOWN_TIME * 0.15) -- Optional delay after showing +1 Age
+    LevelBtn.Text = "Level Up Pet"
+    CooldownBar.Size = UDim2.new(0, 0, 0, 5)
+    cooldown = false
+end)
+
+-- Heartbeat Updater
+task.spawn(function()
+    while true do
+        updatePetInfo()
+        task.wait(1)
+    end
+end)
